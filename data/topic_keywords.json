@@ -13,5 +13,8 @@
   },
   "support": {
     "description": "Customer support, help requests, and technical issues"
+  },
+  "sport": {
+    "description": "football, soccer, basketball, pingpong"
   }
 }

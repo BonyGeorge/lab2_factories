@@ -39,5 +39,14 @@ class EmailTopicInferenceService:
     
     def add_topic(self, topic: Dict[str, Any]):
         data_file = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'data', 'topic_keywords.json')
+        
+        if os.path.exists(data_file):
+            with open(data_file, 'r') as f:
+                existing_topics = json.load(f)
+        else:
+            existing_topics = {}
+        
+        existing_topics.update(topic)
+        
         with open(data_file, 'w') as f:
-            json.dump(topic, f)
+            json.dump(existing_topics, f, indent=2)
