@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from typing import Dict, Any, List
 from app.services.email_topic_inference import EmailTopicInferenceService
-from app.dataclasses import Email
+from app.dataclasses import Email, TopicDiscription
 
 router = APIRouter()
 
@@ -24,6 +24,9 @@ class EmailClassificationResponse(BaseModel):
 class EmailAddResponse(BaseModel):
     message: str
     email_id: int
+
+class TopicAddRequest(BaseModel):
+    topic: Dict[str, TopicDiscription]
 
 @router.post("/emails/classify", response_model=EmailClassificationResponse)
 async def classify_email(request: EmailRequest):
@@ -47,6 +50,19 @@ async def topics():
     inference_service = EmailTopicInferenceService()
     info = inference_service.get_pipeline_info()
     return {"topics": info["available_topics"]}
+
+
+@router.post("/topics")
+async def topics(request: TopicAddRequest):
+    """Add new email topics"""
+    try:
+        inference_service = EmailTopicInferenceService()
+        topic = TopicDiscription(description=request.description)
+        inference_service.add_topic(topic=topic)
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 
 @router.get("/pipeline/info") 
 async def pipeline_info():

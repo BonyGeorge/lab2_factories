@@ -92,3 +92,8 @@ class EmailClassifierModel:
     def get_all_topics_with_descriptions(self) -> Dict[str, str]:
         """Get all topics with their descriptions"""
         return {topic: self.get_topic_description(topic) for topic in self.topics}
+    
+    def add_topic(self, topic: Dict[str, Any]):
+        data_file = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'data', 'topic_keywords.json')
+        with open(data_file, 'w') as f:
+            json.dump(topic, f)

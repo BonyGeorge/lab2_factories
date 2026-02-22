@@ -1,3 +1,4 @@
+import os, json
 from typing import Dict, Any
 from app.models.similarity_model import EmailClassifierModel
 from app.features.factory import FeatureGeneratorFactory
@@ -35,3 +36,8 @@ class EmailTopicInferenceService:
             "available_topics": self.model.topics,
             "topics_with_descriptions": self.model.get_all_topics_with_descriptions()
         }
+    
+    def add_topic(self, topic: Dict[str, Any]):
+        data_file = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'data', 'topic_keywords.json')
+        with open(data_file, 'w') as f:
+            json.dump(topic, f)
