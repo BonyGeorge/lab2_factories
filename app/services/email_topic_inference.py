@@ -38,6 +38,7 @@ class EmailTopicInferenceService:
         }
     
     def add_topic(self, topic: Dict[str, Any]):
+        """Add new Topic"""
         data_file = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'data', 'topic_keywords.json')
         
         if os.path.exists(data_file):
@@ -50,3 +51,27 @@ class EmailTopicInferenceService:
         
         with open(data_file, 'w') as f:
             json.dump(existing_topics, f, indent=2)
+            
+    def add_email(self, email: Dict[str, Any]):
+        """Add new Email"""
+        data_file = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'data', 'emails.json')
+        
+        if os.path.exists(data_file):
+            with open(data_file, 'r') as f:
+                existing_emails = json.load(f, strict=False)
+        else:
+            existing_emails = []
+        
+        existing_emails.append(email)
+        
+        with open(data_file, 'w') as f:
+            json.dump(existing_emails, f, indent=2)
+    
+    def get_all_emails(self) -> list:
+        """Retrieve all emails"""
+        data_file = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'data', 'emails.json')
+        
+        with open(data_file, 'r') as f:
+            emails = json.load(f)
+        
+        return emails

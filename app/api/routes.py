@@ -60,6 +60,7 @@ async def topics(request: TopicAddRequest):
     """Add new email topics"""
     try:
         inference_service = EmailTopicInferenceService()
+        
         topic_dict = request.model_dump()["topic"]
         inference_service.add_topic(topic=topic_dict)
             
@@ -68,6 +69,32 @@ async def topics(request: TopicAddRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+@router.post("/emails")
+async def emails(request: EmailRequest):
+    """Adding new emails"""
+    try:
+        inference_service = EmailTopicInferenceService()
+        
+        email_dict = request.model_dump()
+        inference_service.add_email(email=email_dict)
+        
+        return {"message": "Emails added successfully"}
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+        
+@router.get("/emails")
+async def emails():
+    """Retrieve all emails"""
+    try:
+        inference_service = EmailTopicInferenceService()
+        
+        emails = inference_service.get_all_emails()
+        return emails
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    
 
 @router.get("/pipeline/info") 
 async def pipeline_info():

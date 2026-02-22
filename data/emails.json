@@ -1,1 +1,6 @@
-[]
+[
+  {
+    "subject": "Testing Subject",
+    "body": "Testing Body"
+  }
+]
