@@ -9,6 +9,7 @@ router = APIRouter()
 class EmailRequest(BaseModel):
     subject: str
     body: str
+    ground_truth: Optional[str] = None
 
 class EmailWithTopicRequest(BaseModel):
     subject: str
