@@ -3,6 +3,7 @@ from pydantic import BaseModel
 from typing import Dict, Any, List
 from app.services.email_topic_inference import EmailTopicInferenceService
 from app.dataclasses import Email
+from typing import Optional
 
 router = APIRouter()
 
