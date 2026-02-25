@@ -7,7 +7,7 @@ from sentence_transformers import SentenceTransformer
 class EmailClassifierModel:
     """Email classifier model using embedding similarity"""
 
-    def __init__(self, stored_emails):
+    def __init__(self, stored_emails: List = None):
         self.topic_data = self._load_topic_data()
         self.topics = list(self.topic_data.keys())
 
@@ -17,6 +17,9 @@ class EmailClassifierModel:
         # Pre-compute embeddings for all topic descriptions
         self.topic_embeddings = self._compute_topic_embeddings()
 
+        if stored_emails is None:
+            stored_emails = []
+            
         self.stored_emails = stored_emails
     
     def _load_topic_data(self) -> Dict[str, Dict[str, Any]]:
@@ -37,7 +40,7 @@ class EmailClassifierModel:
     def predict(self, features: dict, mode: str = "topic") -> str:
         email_embedding = features.get("email_embeddings_average_embedding")
         if email_embedding is None:
-            return None
+            return "unknown_topic"
 
         if isinstance(email_embedding, list):
             email_embedding = np.array(email_embedding)
@@ -50,10 +53,9 @@ class EmailClassifierModel:
             return max(scores, key=scores.get)
 
         if mode == "nearest":
-            return self._predict_by_nearest_email(email_embedding)
+            return self._predict_by_nearest_email(email_embedding) or "unknown_topic"
         
-        else:
-            raise ValueError("Mode must be 'topic' or 'nearest'")
+        raise ValueError("Mode must be 'topic' or 'nearest'")
 
     def _predict_by_nearest_email(self, email_embedding: np.ndarray) -> str:
         best_score = -1

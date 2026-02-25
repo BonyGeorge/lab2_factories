@@ -16,5 +16,8 @@
   },
   "sport": {
     "description": "football, soccer, basketball, pingpong"
+  },
+  "billing_issue": {
+    "description": "Customer having problems with billing or charges"
   }
 }

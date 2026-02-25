@@ -1,6 +1,7 @@
 [
   {
-    "subject": "Testing Subject",
-    "body": "Testing Body"
+    "subject": "Wrong charge on invoice",
+    "body": "I was billed incorrectly for last month\u2019s subscription",
+    "ground_truth": "billing_issue"
   }
 ]
