@@ -34,11 +34,11 @@ class TopicAddRequest(BaseModel):
     topic: Dict[str, TopicDiscription]
 
 @router.post("/emails/classify", response_model=EmailClassificationResponse)
-async def classify_email(request: EmailRequest):
+async def classify_email(request: EmailRequest, mode: str = "topic"):
     try:
         inference_service = EmailTopicInferenceService()
         email = Email(subject=request.subject, body=request.body)
-        result = inference_service.classify_email(email)
+        result = inference_service.classify_email(email, mode=mode)
         
         return EmailClassificationResponse(
             predicted_topic=result["predicted_topic"],

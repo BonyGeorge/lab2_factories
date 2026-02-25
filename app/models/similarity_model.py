@@ -7,7 +7,7 @@ from sentence_transformers import SentenceTransformer
 class EmailClassifierModel:
     """Email classifier model using embedding similarity"""
 
-    def __init__(self):
+    def __init__(self, stored_emails):
         self.topic_data = self._load_topic_data()
         self.topics = list(self.topic_data.keys())
 
@@ -16,6 +16,8 @@ class EmailClassifierModel:
 
         # Pre-compute embeddings for all topic descriptions
         self.topic_embeddings = self._compute_topic_embeddings()
+
+        self.stored_emails = stored_emails
     
     def _load_topic_data(self) -> Dict[str, Dict[str, Any]]:
         """Load topic data from data/topic_keywords.json"""
@@ -32,16 +34,48 @@ class EmailClassifierModel:
             topic_embeddings[topic] = embedding
         return topic_embeddings
     
-    def predict(self, features: Dict[str, Any]) -> str:
-        """Classify email into one of the topics using feature similarity"""
-        scores = {}
+    def predict(self, features: dict, mode: str = "topic") -> str:
+        email_embedding = features.get("email_embeddings_average_embedding")
+        if email_embedding is None:
+            return None
+
+        if isinstance(email_embedding, list):
+            email_embedding = np.array(email_embedding)
+
+        if mode == "topic":
+            scores = {
+                topic: self._calculate_topic_score(features, topic)
+                for topic in self.topics
+            }
+            return max(scores, key=scores.get)
+
+        if mode == "nearest":
+            return self._predict_by_nearest_email(email_embedding)
         
-        # Calculate similarity scores for each topic based on features
-        for topic in self.topics:
-            score = self._calculate_topic_score(features, topic)
-            scores[topic] = score
-        
-        return max(scores, key=scores.get)
+        else:
+            raise ValueError("Mode must be 'topic' or 'nearest'")
+
+    def _predict_by_nearest_email(self, email_embedding: np.ndarray) -> str:
+        best_score = -1
+        best_label = None
+
+        for stored in self.stored_emails:
+            stored_embedding = np.array(stored["embedding"])
+            label = stored.get("ground_truth")
+            if label is None:
+                continue
+
+            dot = np.dot(email_embedding, stored_embedding)
+            norm = np.linalg.norm(email_embedding) * np.linalg.norm(stored_embedding)
+            if norm == 0:
+                continue
+
+            sim = dot / norm
+            if sim > best_score:
+                best_score = sim
+                best_label = label
+
+        return best_label
     
     def get_topic_scores(self, features: Dict[str, Any]) -> Dict[str, float]:
         """Get classification scores for all topics"""
@@ -95,5 +129,15 @@ class EmailClassifierModel:
     
     def add_topic(self, topic: Dict[str, Any]):
         data_file = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'data', 'topic_keywords.json')
+        
+        with open(data_file, 'r') as f:
+            current_topics = json.load(f)
+
+        current_topics.update(topic)
+
         with open(data_file, 'w') as f:
-            json.dump(topic, f)
+            json.dump(current_topics, f, indent=4)
+
+        self.topic_data = current_topics
+        self.topics = list(self.topic_data.keys())
+        self.topic_embeddings = self._compute_topic_embeddings()
